@@ -1,0 +1,45 @@
+before:
+  hooks:
+    - go mod tidy
+
+snapshot:
+  name_template: '{{ .Tag }}'
+checksum:
+  name_template: 'checksums.txt'
+changelog:
+  skip: true
+
+builds:
+  - id: build
+    main: .
+    binary: dns-lookup-latency
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
+      - windows
+    goarch:
+      - amd64
+      - arm64
+    ldflags:
+      - -s -w
+
+archives:
+  - id: dns-lookup-latency
+    builds:
+      - build
+    format: tar.gz
+    format_overrides:
+      - goos: windows
+        format: zip
+    name_template: "dns-lookup-latency-v{{ .Version }}-{{ .Os }}-{{ .Arch }}"
+    wrap_in_directory: true
+    files:
+      - README.md
+
+release:
+  github:
+    owner: UlricQin
+    name: dns-lookup-latency
+  name_template: "v{{ .Version }}"
